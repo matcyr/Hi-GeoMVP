@@ -1,4 +1,4 @@
-# Hi-GeoMVP
+# Hi-GeoMVP: a hierarchical geometry-enhanced deep learning model for drug response prediction
 Hi-GeoMVP is a deep-leaning model using graph neural networks to represent the drug and cell line features for drug response prediction.
 # How to use:
 ## 1. Generate dataset:
@@ -8,8 +8,7 @@ Hi-GeoMVP is a deep-leaning model using graph neural networks to represent the d
     All the used data are saved in .npy format and under the ./Data/DRP_dataset
     An example to create the dataset and dataloader in Pytorch is provided in data_preprocess.py
 ## 2. Train the model:
-
-### We provide the script to train the model with different settings and hyperparameters:  
+We provide the script to train the model with different settings and hyperparameters:  
 train_type: 'cb', 'db', or 'mix' for cell blind, drug blind, and mix setting.  
 use_norm_ic50: 'True' or 'False', for usage of normalized IC50 value.  
 use_regulizer: 'True' or 'False', usage of MTL cancer type.  
