@@ -45,7 +45,13 @@ drug_classfication.py
 *.pnggit rm --cached
 
 
-train_multi_omics_drp.py train_multi_omics_atten.py train_full_model.py train_multi_view.py train_attention_model.py plot_style.txt image_3d.png git_update.sh cell_vae.py IC50_binarization.py
+train_multi_omics_drp.py 
+train_multi_omics_atten.py 
+train_full_model.py train_multi_view.py 
+train_attention_model.py 
+plot_style.txt 
+image_3d.png git_update.sh 
+cell_vae.py IC50_binarization.py
 
 Data/cell_latex.txt
 train_model/train_test_multi_omics_atten.py 
@@ -53,7 +59,6 @@ train_model/train_test_multi_view.py
 train_model/train_test_vae.py  
 train_model/train_test_single_omics_atten.py
 
-/home/yurui/Atten_Geom_DRP/train_model/train_test_single_omics_atten.py
 
 .history 
 .vscode
