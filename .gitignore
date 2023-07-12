@@ -42,16 +42,18 @@ drug_classfication.py
 *.svg
 *.pdf
 *.pth
-*.pnggit rm --cached
-
+*.png
 
 train_multi_omics_drp.py 
 train_multi_omics_atten.py 
-train_full_model.py train_multi_view.py 
+train_full_model.py 
+train_multi_view.py 
 train_attention_model.py 
 plot_style.txt 
-image_3d.png git_update.sh 
-cell_vae.py IC50_binarization.py
+image_3d.png 
+git_update.sh 
+cell_vae.py 
+IC50_binarization.py
 
 Data/cell_latex.txt
 train_model/train_test_multi_omics_atten.py 
@@ -63,3 +65,5 @@ train_model/train_test_single_omics_atten.py
 .history 
 .vscode
 __pycache__
+
+# git rm --cached train_full_model.py train_multi_view.py  image_3d.png git_update.sh cell_vae.py IC50_binarization.py
