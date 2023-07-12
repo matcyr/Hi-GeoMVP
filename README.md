@@ -1,7 +1,7 @@
 # Hi-GeoMVP: a hierarchical geometry-enhanced deep learning model for drug response prediction
 Hi-GeoMVP is a deep-leaning model using graph neural networks to represent the drug and cell line features for drug response prediction.
 
-![plot](https://github.com/matcyr/Hi-GeoMVP/blob/main/model_structure/Model_arch.pdf)
+![plot](https://github.com/matcyr/Hi-GeoMVP/blob/main/model_structure/model_arch.png)
 
 # How to use:
 ## 1. Generate dataset:
