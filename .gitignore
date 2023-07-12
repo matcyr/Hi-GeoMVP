@@ -69,3 +69,5 @@ __pycache__
 # git rm --cached train_full_model.py train_multi_view.py  image_3d.png git_update.sh cell_vae.py IC50_binarization.py
 # Exception for model_structure folder
 !model_structure/
+# model_structure/*
+!model_structure/Model_arch.pdf
