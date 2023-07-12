@@ -70,4 +70,4 @@ __pycache__
 # Exception for model_structure folder
 !model_structure/
 # model_structure/*
-!model_structure/Model_arch.pdf
+!model_structure/model_arch.png
