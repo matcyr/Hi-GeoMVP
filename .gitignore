@@ -55,4 +55,6 @@ train_model/train_test_single_omics_atten.py
 
 /home/yurui/Atten_Geom_DRP/train_model/train_test_single_omics_atten.py
 
-.history/ .vscode/ __pycache__/
+.history 
+.vscode
+__pycache__
