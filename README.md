@@ -2,6 +2,7 @@
 Hi-GeoMVP is a deep-leaning model using graph neural networks to represent the drug and cell line features for drug response prediction.
 
 ![plot](https://github.com/matcyr/Hi-GeoMVP/blob/main/model_structure/model_arch.png)
+Hi-GeoMVP takes drug geometry, chemical graph, and fingerprints, along with multi-omics data as input. Hi-GeoMVP employs a geometry-enhanced graph neural network (GeoGNN) and an multi-layer perceptron (MLP) for drug representation learning from drug features, and graph attention networks (GATa) and a variational autoencoder (VAE) for cell representation learning from multi-omics data. These representations are then integrated via a multi-view fusion module for drug response prediction (ln(IC50)). The model also utilizes latent representations alongside distinct prediction sub-networks for joint learning of drug and cell tasks, ultimately improving the prediction of drug response. The final output of the Hi-GeoMVP model is the predicted value of ln(IC50).
 
 # How to use:
 ## 1. Generate dataset:
