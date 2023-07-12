@@ -35,13 +35,11 @@ weights*/
 data
 MOMA
 drug_classfication.py
-*.py
+# *.py
 *.eps
 *.ipynb
 *.pth
 *.svg
 *.pdf
 *.pth
-
-
-
+*.pnggit rm --cached
