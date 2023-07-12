@@ -43,3 +43,6 @@ drug_classfication.py
 *.pdf
 *.pth
 *.pnggit rm --cached
+
+
+train_multi_omics_drp.py train_multi_omics_atten.py train_full_model.py train_multi_view.py train_attention_model.py plot_style.txt image_3d.png git_update.sh cell_vae.py IC50_binarization.py
