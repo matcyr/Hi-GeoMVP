@@ -39,6 +39,7 @@ def arg_parse():
     parser.add_argument('--part', type= int, default=0) ##cross validation part 0,1,2,3,4
     parser.add_argument('--scheduler_type',type = str, default= 'OP', help= 'OP(OnPlateau) or ML(Multistep)')
     parser.add_argument('--drug_ablation', type= str, default= 'False')
+    parser.add_argument('--test_portion', type= float, default= 0.2)
     return parser.parse_args()
 
 ge_HN_feat, ge_sim_dict, cnv_dict, mut_dict = load_cell_feat()
@@ -76,7 +77,7 @@ if __name__ == '__main__':
     ge_HN_feat, ge_sim_dict, cnv_dict, mut_dict = load_cell_feat()
     drug_atom_dict,drug_bond_dict = load_drug_feat()
     ## 5 fold train_test dataset
-    train_dict, val_dict, test_dict = n_fold_split(drug_name=drug_name, cell_name= cell_name, drug_response_dict= drug_response_dict, type= args.train_type, seed = args.seed)
+    train_dict, val_dict, test_dict = n_fold_split(drug_name=drug_name, cell_name= cell_name, drug_response_dict= drug_response_dict, type= args.train_type, seed = args.seed, test_portion= args.test_portion)
     i = args.part
     train_idx, val_idx, test_idx = train_dict[i], val_dict[i], test_dict
     train_set = multi_DRP_dataset(drp_idx = train_idx,use_norm_ic50= args.use_norm_ic50, use_raw_gene= args.use_raw_gene)
