@@ -1,6 +1,6 @@
-from create_cell_feat import *
-from create_drug_feat import *
-from create_drp_dict import *
+from prepare_data.create_cell_feat import *
+from prepare_data.create_drug_feat import *
+from prepare_data.create_drp_dict import *
 from torch.utils.data import Dataset, DataLoader
 from torch_geometric.data import Batch
 
@@ -27,13 +27,6 @@ def _collate(samples):
     batch_cnv = Batch.from_data_list(cnv)
     batch_mut = Batch.from_data_list(mut)
     return batched_drug_atom, batched_drug_bond, batch_ge, batch_ge_sim, batch_cnv,batch_mut, torch.tensor(labels), torch.tensor(labels_norm)
-# def train_test_split(type = 'mix'): ## type: mix, cb, db
-#     drug_response_dict, drug_name, cell_name = read_dr_dict()
-#     ge_HN_feat, ge_sim_dict, cnv_dict, mut_dict = load_cell_feat()
-#     drug_atom_dict,drug_bond_dict = load_drug_feat()
-#     train_idx, test_idx = create_drp_set(type=type, drug_name = drug_name, cell_name = cell_name, drug_response_dict = drug_response_dict, seed = 0)
-#     train_set = DRP_dataset(drug_atom_dict=drug_atom_dict, drug_bond_dict=drug_bond_dict, ge_dict=ge_HN_feat, ge_sim_dict= ge_sim_dict, cnv_dict= cnv_dict, mut_dict = mut_dict, drug_response_dict=drug_response_dict[train_idx])
-#     test_set = DRP_dataset(drug_atom_dict=drug_atom_dict, drug_bond_dict=drug_bond_dict, ge_dict=ge_HN_feat, ge_sim_dict= ge_sim_dict, cnv_dict= cnv_dict, mut_dict = mut_dict, drug_response_dict=drug_response_dict[test_idx])
 #     return train_set, test_set
 def drp_loader(data_set,batch_size,shuffle = True, num_workers = 4):
     data_loader = DataLoader(data_set, batch_size=batch_size, shuffle=shuffle, collate_fn=_collate, num_workers=num_workers)
