@@ -65,69 +65,6 @@ def create_drp_set(type='mix', drug_name = None, cell_name = None, drug_response
         test_idx = [idx for idx, [cell,
                                             drug, ic50,norm_ic50] in enumerate(drug_response_dict) if drug in test_drug]
     return train_idx, test_idx
-# def n_fold_split(type='mix', drug_name = None, cell_name = None, drug_response_dict = None, seed = 0, n_folds = 5): ## type: mix, cb, db
-#    random.seed(seed)
-#    if type == 'mix':
-#         num_total = len(drug_response_dict)
-#         indices = np.arange(num_total)
-#         np.random.shuffle(indices)
-#         fold_size = num_total // n_folds
-#         train_dict = { } 
-#         val_dict = {}
-#         test_dict = {}
-#         for i in range(5):
-#             validation_start = i * fold_size
-#             test_start = (i + 1) * fold_size
-#             train_start = (i + 2) * fold_size
-#             validation_indices = indices[validation_start:test_start]
-#             test_indices = indices[test_start:train_start] if i < n_folds - 1 else np.concatenate((indices[test_start:],indices[:fold_size]))
-#             train_indices = np.concatenate((indices[:validation_start], indices[train_start:])) if i < n_folds - 1 else indices[fold_size:validation_start]
-#             train_dict[i] = list(train_indices)
-#             val_dict[i] = list(validation_indices)
-#             test_dict[i] = list(test_indices)    
-#    elif type == 'cb':
-#         num_cells = len(cell_name)
-#         indices = np.arange(num_cells)
-#         np.random.shuffle(indices)
-#         cell_folds = np.array_split(indices, n_folds)
-#         train_dict = { } 
-#         val_dict = {}
-#         test_dict = {}
-#         for i in range(5):
-#             val_cell_indices = cell_folds[i]
-#             test_cell_indices = cell_folds[(i + 1) % n_folds]
-#             train_cell_indices = np.concatenate([cell_folds[j] for j in range(n_folds) if j != i and j != (i + 1) % n_folds])
-#             train_idx = [idx for idx, [cell, drug,
-#                                                     ic50,norm_ic50] in enumerate(drug_response_dict) if cell in cell_name[train_cell_indices]]
-#             test_idx = [idx for idx,[cell,
-#                                                 drug, ic50,norm_ic50] in enumerate(drug_response_dict) if cell in cell_name[test_cell_indices]]  
-#             val_idx = [idx for idx, [cell, drug,
-#                                                     ic50,norm_ic50] in enumerate(drug_response_dict) if cell in cell_name[val_cell_indices]]
-#             train_dict[i] = train_idx
-#             test_dict[i] = test_idx
-#             val_dict[i] = val_idx
-#    elif type == 'db':
-#         num_drugs = len(drug_name)
-#         indices = np.arange(num_drugs)
-#         np.random.shuffle(indices)
-#         drug_folds = np.array_split(indices, n_folds)
-#         train_dict = { } 
-#         val_dict = {}
-#         test_dict = {}
-#         for i in range(5):
-#             val_drug_indices = drug_folds[i]
-#             test_drug_indices = drug_folds[(i + 1) % n_folds]
-#             train_drug_indices = np.concatenate([drug_folds[j] for j in range(n_folds) if j != i and j != (i + 1) % n_folds])
-#             train_idx = [idx for idx, [cell, drug,
-#                                                     ic50,norm_ic50] in enumerate(drug_response_dict) if drug in drug_name[train_drug_indices]]
-#             test_idx = [idx for idx,[cell,
-#                                                 drug, ic50,norm_ic50] in enumerate(drug_response_dict) if drug in drug_name[test_drug_indices]]  
-#             val_idx = [idx for idx, [cell, drug,
-#                                                     ic50,norm_ic50] in enumerate(drug_response_dict) if drug in drug_name[val_drug_indices]]
-#             train_dict[i] = train_idx
-#             test_dict[i] = test_idx
-#             val_dict[i] = val_idx
-#    return train_dict, val_dict, test_dict
 
 def n_fold_split(type='mix', drug_name = None, cell_name = None, drug_response_dict = None, seed = 0, n_folds = 10, test_portion = 0.1): ## type: mix, cb, db
    random.seed(seed)

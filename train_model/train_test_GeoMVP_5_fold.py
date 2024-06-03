@@ -3,24 +3,17 @@ sys.path.append('.')
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 from scipy.stats import pearsonr
 import torch
+import torch.nn as nn
+import torch.optim as opt
 import torch.cuda.amp as amp
 import datetime
 from torch.utils.tensorboard import SummaryWriter
-from torch.optim.lr_scheduler import LinearLR
 from model.drp_model.DRP_nn import DRP_multi_view, DRP_multi_view_ablation, DRP_multi_view_ablation_drug
-from torch.utils.data import Dataset, DataLoader
 from prepare_data.create_cell_feat import *
 from prepare_data.create_drug_feat import *
 from prepare_data.create_drp_dict import *
 from prepare_data.DRP_loader import *
-from base_line.TGSA_model.tgsa_model import *
-from torch_geometric.data import Batch
-import torch.optim as opt
-from torch_geometric.nn import  graclus
-from tqdm import tqdm
-from itertools import product
-from train_model.utils import get_polynomial_decay_schedule_with_warmup
-import argparse
+
        
 
 def cross_entropy_one_hot(input, target):
@@ -136,17 +129,8 @@ def test_step(model,loader,device, args):
 
 
 def train_multi_view_model(args, train_set, val_set, test_set, mut_cluster, cnv_cluster, ge_cluster, i):
-    # save_dir = 'tb_multi_view_full_'+ args.train_type
-    # save_dir = 'ablation' + args.train_type + '_' + f'{i}' + '_layernorm'
     save_dir = 'best_model_' + args.train_type + '_' + f'{i}' + '_layernorm'
-    # if args.use_norm_ic50 == 'True':
-    #     weights = 'weights_atten_norm_multi_omics'
-    # else: weights = 'weights_atten_multi_omics'
-    # if os.path.exists(f"./{weights}/{args.train_type}") is False:
-    #     os.makedirs(f"./{weights}/{args.train_type}")
-    # param_values = [v for v in parameters.values()]
-    device = args.device
-    # for run_id, (lr, embed_dim, batch_size, layer_num,hidden_dim,readout, use_fp, optimizer_name, view_dim, use_regulizer) in enumerate(product(*param_values)):    
+    device = args.device  
     lr = args.lr
     embed_dim = args.embed_dim
     batch_size = args.batch_size
@@ -161,7 +145,6 @@ def train_multi_view_model(args, train_set, val_set, test_set, mut_cluster, cnv_
     regular_weight_drug_path_way = args.regular_weight_drug_path_way
     view_dim = args.view_dim
     use_cnn = args.use_cnn
-    # run_id = f'embed_dim_{embed_dim}_'+f'hidden_dim_{hidden_dim}_'+f'view_dim_{view_dim}_'+f'regular_weight_{regular_weight}_' + f'use_regulizer_drug_{use_regulizer_drug}' + f'use_drug_path_way_{use_drug_path_way}_' +f'regular_weight_drug_{regular_weight_drug}_' + f'regular_weight_drug_path_way_{regular_weight_drug_path_way}_' + f'use_cnn_{use_cnn}' + f'_lr_{args.lr}'
     run_id = args.use_predined_gene_cluster + '_' + args.scheduler_type + '_' + f'{args.dropout_rate}'
     path = f'./TB_5_fold/{save_dir}/{run_id}'+'.pth'    
     n_epochs = args.epochs
@@ -176,20 +159,14 @@ def train_multi_view_model(args, train_set, val_set, test_set, mut_cluster, cnv_
             model = DRP_multi_view_ablation(mut_cluster, cnv_cluster, ge_cluster, model_config).to(device)
         elif  args.drug_ablation == 'True':
             model = DRP_multi_view_ablation_drug(mut_cluster, cnv_cluster, ge_cluster, model_config).to(device)
-    # model = torch.compile(model)
     optimizer = opt.AdamW(model.parameters(), lr=lr, weight_decay= 0.01)
-        # scheduler = get_polynomial_decay_schedule_with_warmup(optimizer,num_warmup_steps=50, num_training_steps=n_epochs, lr_end = 1e-4, power=1)
-    # elif optimizer_name == 'SGD': 
-        # optimizer = opt.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=1e-2)
-    # cos_lr = lambda x : ((1+math.cos(math.pi* x /100) )/2)*(1-args.lrf) + args.lrf
-    # scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=cos_lr)
     current_time = datetime.datetime.now().time()
     print('Begin Training')
     print(f'Embed_dim_drug : {embed_dim}'+ '\n' +f'Hidden_dim_cell : {hidden_dim} \n' +  f'layer_num : {layer_num} \n'+ 
             f'read_out_function : {readout}\n'  +f'batch_size : {batch_size}\n' + f'view_dim : {view_dim}\n' + 
             f'lr : {lr}\n' + f'use_regulizer : {use_regulizer}\n' + f'use_regulizer_drug : {use_regulizer_drug}\n' + f'use_cnn : {use_cnn}')
     tb = SummaryWriter(comment=current_time, log_dir=f'./TB_5_fold/{save_dir}')
-    torch.save([mut_cluster, cnv_cluster, ge_cluster],f'/home/yurui/Atten_Geom_DRP/TB_5_fold/{save_dir}/{run_id}'+'_cluster.pth' )
+    torch.save([mut_cluster, cnv_cluster, ge_cluster],f'./TB_5_fold/{save_dir}/{run_id}'+'_cluster.pth' )
     train_loader = multi_drp_loader(train_set,batch_size= batch_size,shuffle = True, num_workers = args.num_workers, use_raw_gene= args.use_raw_gene)
     val_loader = multi_drp_loader(val_set,batch_size= batch_size,shuffle = True, num_workers = args.num_workers, use_raw_gene= args.use_raw_gene)
     test_loader = multi_drp_loader(test_set,batch_size= 512,shuffle = True, num_workers = args.num_workers, use_raw_gene= args.use_raw_gene)
@@ -203,10 +180,8 @@ def train_multi_view_model(args, train_set, val_set, test_set, mut_cluster, cnv_
     reult_file_path = f"./{results}/{args.train_type}/" + "model_run_{}".format(run_id)+".csv"
     early_stop_count = 0 
     best_epoch = 0 
-    best_mae = 100
     best_val_pcc = -1
     best_val_rmse = 100
-    scheduler_type = args.scheduler_type
     if args.scheduler_type == 'OP':
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', patience= 7 , verbose=True, min_lr= 0.05 * args.lr, factor= 0.1)
     elif args.scheduler_type == 'ML':
@@ -254,24 +229,6 @@ def train_multi_view_model(args, train_set, val_set, test_set, mut_cluster, cnv_
                 print(f'Best epoch: {best_epoch:03d}, Best PCC: {test_pcc:.4f}')
                 print(f'Best RMSE: {test_rmse:.4f}, Best R_2: {test_r_2:.4f}, Best MAE: {test_mae:.4f}')
     print("__________________________________________________________")
-    # tb.add_hparams(
-    #     {"lr": lr, "bsize": batch_size, "embed_dim": embed_dim, "layer_num": layer_num,'hidden_dim' : hidden_dim,'readout': readout, 
-    #         'best_epoch' : best_epoch, 'view_dim' : view_dim, "drop_out" : args.dropout_rate,
-    #         'use_regulizer': use_regulizer, 'use_regulizer_drug': use_regulizer_drug, 'use_drug_path_way': use_drug_path_way,
-    #         'use_cnn' : use_cnn, 'use_predined_gene_cluster' : args.use_predined_gene_cluster, 'scheduler_type' : args.scheduler_type,
-    #         'regular_weight' : regular_weight, 'regular_weight_drug' : regular_weight_drug, 'regular_weight_drug_path_way': regular_weight_drug_path_way},
-    #     {
-    #         "val_pcc": best_val_pcc,
-    #         "val_r2": best_r_2,
-    #         "val_rmse": best_val_rmse,
-    #         "val_mae": best_mae,
-    #         "test_pcc": test_pcc,
-    #         "test_r2": test_r_2,
-    #         "test_rmse": test_rmse,
-    #         "test_mae": test_mae,
-    #         "loss": train_rmse,
-    #     },
-    # )
     tb.add_hparams(
         {   'use_regulizer': use_regulizer, 'use_regulizer_drug': use_regulizer_drug, 'use_drug_path_way': use_drug_path_way, 'best_epoch' : best_epoch,
             'use_raw_gene' : args.use_raw_gene, 'use_predined_gene_cluster' : args.use_predined_gene_cluster, 'drug_ablation' : args.drug_ablation, 

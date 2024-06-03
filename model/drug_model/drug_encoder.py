@@ -95,103 +95,22 @@ class drug_fp_mlp(nn.Module):
         return self.layers(x.squeeze(1))
 
 
-
-# class Drug_3d_Encoder(nn.Module):
-#     def __init__(self, model_config):
-#         super(Drug_3d_Encoder, self).__init__()
-#         self.layer_num = model_config.get('layer_num')
-#         self.readout = model_config.get('readout')
-#         self.embed_dim = model_config.get('embed_dim')
-#         self.dropout_rate = model_config.get('dropout_rate')
-#         self.atom_rbf_para = (np.arange(0, 2, 0.1), 10.0)   # (centers, gamma)
-#         self.bond_rbf_para = (np.arange(0, 2, 0.1), 10.0)
-#         self.angle_rbf_para = (np.arange(0, np.pi, 0.1), 10.0)
-#         self.atom_rbf_emb_nn = FloatEmbedding(self.embed_dim,self.atom_rbf_para)
-#         self.bond_rbf_emb_nn = FloatEmbedding(self.embed_dim,self.bond_rbf_para)
-#         self.angle_rbf_emb_nn = FloatEmbedding(self.embed_dim,self.angle_rbf_para)    
-
-#         self.atom_int_embed_nn = torch.nn.Embedding(get_atom_int_feature_dims()[0], self.embed_dim) 
-#         torch.nn.init.xavier_uniform_(self.atom_int_embed_nn.weight.data)
-#         self.bond_int_embed_nn = torch.nn.Embedding(get_bond_feature_int_dims()[0]+3, self.embed_dim)
-#         torch.nn.init.xavier_uniform_(self.bond_int_embed_nn.weight.data)
-        
-#         self.bond_embedding_list = nn.ModuleList()
-#         self.bond_angle_float_rbf_list = nn.ModuleList()
-#         self.atom_bond_block_list = nn.ModuleList()
-#         self.bond_angle_block_list = nn.ModuleList()
-#         for layer_id in range(self.layer_num):
-#             bond_emb = nn.ModuleList([torch.nn.Embedding(get_bond_feature_int_dims()[0]+3, self.embed_dim)])
-#             for item in bond_emb:
-#                 torch.nn.init.xavier_uniform_(item.weight.data)
-#             self.bond_embedding_list.append(bond_emb) ### bond int feature embedding dictionary
-#             self.bond_angle_float_rbf_list.append(
-#                     FloatEmbedding(self.embed_dim,self.angle_rbf_para))
-#             self.atom_bond_block_list.append(
-#                     GIN_conv(self.embed_dim, self.dropout_rate, last_act=(layer_id != self.layer_num - 1)))
-#             self.bond_angle_block_list.append(
-#                     GIN_conv(self.embed_dim, self.dropout_rate, last_act=(layer_id != self.layer_num - 1)))
-#         if self.readout == 'mean':
-#             self.graph_pool = global_mean_pool
-#         elif self.readout == 'add':
-#             self.graph_pool = global_add_pool
-#         else:
-#             self.graph_pool = global_max_pool
-
-#         print('[Drug_Encoder] embed_dim:%s' % self.embed_dim)
-#         print('[Drug_Encoder] dropout_rate:%s' % self.dropout_rate)
-#         print('[Drug_Encoder] layer_num:%s' % self.layer_num)
-#         print('[Drug_Encoder] readout:%s' % self.readout)
-
-#     @property
-#     def node_dim(self):
-#         """the out dim of graph_repr"""
-#         return self.embed_dim
-
-#     @property
-#     def graph_dim(self):
-#         """the out dim of graph_repr"""
-#         return self.embed_dim
-
-#     def forward(self, drug_atom,drug_bond):
-#         """
-#         Build the network.
-#         """       
-#         #### Embedding for initial feature
-#         ### Embedding for atom feature. 9 int + 1 float
-#         node_hidden = 0
-#         node_hidden += self.atom_int_embed_nn(drug_atom.x[:,0].to(dtype=torch.int64))
-#         edge_hidden = 0 
-#         edge_hidden += self.bond_int_embed_nn(drug_atom.edge_attr[:,0].to(dtype=torch.int64))    
-
-#         node_hidden_list = [node_hidden]
-#         edge_hidden_list = [edge_hidden]
-        
-#         for layer_id in range(self.layer_num):
-#             node_hidden = self.atom_bond_block_list[layer_id](node_hidden = node_hidden_list[layer_id],
-#                                                               edge_hidden = edge_hidden_list[layer_id],
-#                                                               edge_index = drug_atom.edge_index, 
-#                                                               batch = drug_atom.batch)   
-#             cur_edge_hidden = 0        
-#             bond_int_embed_nn = self.bond_embedding_list[layer_id]         
-#             cur_edge_hidden += bond_int_embed_nn[0](drug_bond.x[:,0].to(dtype=torch.int64))
-#             cur_angle_hidden = self.bond_angle_float_rbf_list[layer_id](drug_bond.edge_attr)
-#             edge_hidden = self.bond_angle_block_list[layer_id](node_hidden = cur_edge_hidden,
-#                                                               edge_hidden = cur_angle_hidden,
-#                                                               edge_index = drug_bond.edge_index, 
-#                                                               batch = drug_bond.batch)
-#             node_hidden_list.append(node_hidden)
-#             edge_hidden_list.append(edge_hidden)
-        
-#         node_repr = node_hidden_list[-1]
-#         # edge_repr = edge_hidden_list[-1]
-#         graph_repr = self.graph_pool(node_repr,batch = drug_atom.batch)
-#         return graph_repr
-
-
-
-
 ## Graph geom learning
 class Drug_3d_Encoder(nn.Module):
+    """
+    Drug_3d_Encoder is a deep learning model designed for encoding 3D molecular structures of drugs.
+    
+    Attributes:
+        embed_dim (int): Dimension of the embeddings for atoms and bonds.
+        dropout_rate (float): Dropout rate applied to the layers to prevent overfitting.
+        layer_num (int): Number of layers in the graph convolutional network.
+        readout (str): Type of readout function to aggregate node features into a graph-level representation.
+        jk (str): Type of Jumping Knowledge (JK) connection to be used ('True' for concatenation).
+
+    Args:
+        model_config (dict): Configuration dictionary specifying various hyperparameters for the model.
+    """
+        
     def __init__(self,model_config):
         super(Drug_3d_Encoder, self).__init__()
         self.embed_dim = model_config.get('embed_dim')

@@ -278,41 +278,6 @@ class drug_conv_1d(torch.nn.Module):
         return out
 
 
-
-
-# class drug_fp_conv_1d(torch.nn.Module):
-#     def __init__(self, n_filters=4):
-#         super(drug_fp_conv_1d, self).__init__()
-#         self.conv_fp_1 = nn.Conv1d(
-#             in_channels=1, out_channels=n_filters, kernel_size=8, bias = False)
-#         self.fp_bn1 = nn.BatchNorm1d(n_filters)
-#         self.fp_pool1 = nn.MaxPool1d(3)
-#         self.fp_act1 = nn.ReLU()
-#         self.fp_conv_block_1 = nn.Sequential(
-#             self.conv_fp_1, self.fp_bn1, self.fp_act1, self.fp_pool1)
-#         self.conv_fp_2 = nn.Conv1d(
-#             in_channels=n_filters, out_channels=n_filters * 2, kernel_size=8, bias = False)
-#         self.fp_bn2 = nn.BatchNorm1d(n_filters * 2)
-#         self.fp_pool2 = nn.MaxPool1d(3)
-#         self.fp_act2 = nn.ReLU()
-#         self.fp_conv_block_2 = nn.Sequential(
-#             self.conv_fp_2, self.fp_bn2, self.fp_act2, self.fp_pool2)
-#         self.conv_fp_3 = nn.Conv1d(
-#             in_channels=n_filters * 2, out_channels=n_filters * 4, kernel_size=8, bias = False)
-#         self.fp_bn3 = nn.BatchNorm1d(n_filters * 4)
-#         self.fp_pool3 = nn.MaxPool1d(3)
-#         self.fp_act3 = nn.ReLU()
-#         self.fp_conv_block_3 = nn.Sequential(
-#             self.conv_fp_3, self.fp_bn3, self.fp_act3, self.fp_pool3)
-
-#     def forward(self, smiles):
-#         out = self.fp_conv_block_1(smiles)
-#         out = self.fp_conv_block_2(out)
-#         out = self.fp_conv_block_3(out)
-#         out = out.view(-1, out.shape[1]*out.shape[2])
-#         return out
-
-
 class drug_1d_embedding(nn.Module):
     def __init__(self, smiles_in_dim, fp_in_dim, embed_dim) -> None:
         super(drug_1d_embedding, self).__init__()
